@@ -26,7 +26,7 @@ s.stopRecording
 
 (
 SynthDef.new(\balloon, {
-	arg notea = 48, noteb = 48, notec = 48, noted = 48, tuning = 12, envab = 0, envbc = 0, envcd = 0, gain = 0.3, pan = 0.5, bandpfa = 1, bandpfb = 1, bandpfc = 1, bandpqa = 1, bandpqb = 1, bandpqc = 1, bandpqa = 1, bandpqb = 1, bandpqc = 1, upbound=1000000, lobound=1, sustain = 0.5, timescale = 1;
+	arg notea = 48, noteb = 48, notec = 48, noted = 48, tuning = 12, envab = 0, envbc = 0, envcd = 0, gain = 0.3, pan = 0.5, bandpfa = 1, bandpfb = 1, bandpfc = 1, bandpqa = 1, bandpqb = 1, bandpqc = 1, bandpga = 1, bandpgb = 1, bandpgc = 1, upbound=1000000, lobound=1, sustain = 0.5, timescale = 1;
 	var line, octavea, octaveb, octavec, octaved, freqa, freqb, freqc, freqd, path, env, filteda, filtedb, filtedc, sig, wave;
 	line = Line.kr (1,0,sustain * timescale,gain,0,2);
 	notea = notea.wrap(lobound,upbound);
@@ -44,9 +44,9 @@ SynthDef.new(\balloon, {
 	path = Env.new([freqa, freqb, freqc, freqd], [envab * timescale, envbc * timescale, envcd * timescale], \exp);
 	env = EnvGen.ar (path);
 	wave = LFPulse.ar (env);
-	filteda = (BBandPass.ar(wave, bandpfa * env, bandpqa) * bandpqa);
-	filtedb = (BBandPass.ar(wave, bandpfb * env, bandpqb) * bandpqb);
-	filtedc = (BBandPass.ar(wave, bandpfc * env, bandpqc) * bandpqc);
+	filteda = (BBandPass.ar(wave, bandpfa * env, bandpqa) * bandpga);
+	filtedb = (BBandPass.ar(wave, bandpfb * env, bandpqb) * bandpgb);
+	filtedc = (BBandPass.ar(wave, bandpfc * env, bandpqc) * bandpgc);
 	sig = ((filteda + filtedb + filtedc) / 3 * line);
 	Out.ar (0, Pan2.ar (sig, pan, 1));
 }).add
