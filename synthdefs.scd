@@ -47,7 +47,7 @@ SynthDef.new(\balloon, {
 	filteda = (BBandPass.ar(wave, bandpfa * env, bandpqa) * bandpqa);
 	filtedb = (BBandPass.ar(wave, bandpfb * env, bandpqb) * bandpqb);
 	filtedc = (BBandPass.ar(wave, bandpfc * env, bandpqc) * bandpqc);
-	sig = ((filteda + filtedb + filtedc) / 3);
+	sig = ((filteda + filtedb + filtedc) / 3 * line);
 	Out.ar (0, Pan2.ar (sig, pan, 1));
 }).add
 )
