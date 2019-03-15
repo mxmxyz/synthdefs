@@ -18,9 +18,26 @@ w.cheby([0.5,1,3.75,0.2,0.2,1.45,1.0,0.8,2.5])
 
 // record button - ALWAYS to keep in a place where you'll always see it
 
-s.record('screcs/file-name.wav');
+s.record('screcs/balloon-studies-06-15.wav');
 
 s.stopRecording
+
+// "plush" - a sine wave with a variable-curve envelope
+
+(
+SynthDef(\plush, {
+	arg out, sustain=1, pan = 0.5, note = 60, pitchval = 1, pitchenv = 0.01, detune = 1.00, gain = 0.25, tuning = 12, lobound = 0, upbound = 100000, envcurve = 3;
+	var env, freq, sig, glide, octave;
+    env = EnvGen.ar(Env.linen(0.01, 0.00, 0.99, gain, envcurve.neg), timeScale:sustain, doneAction:2);
+	glide = XLine.kr(pitchval,1,pitchenv);
+	note= note.wrap(lobound,upbound);
+	octave = ((note/tuning)-5).trunc(1);
+	freq = 440 * (pow(2,octave)) * (pow(2,((mod(note,tuning))/tuning)));
+	freq= freq * detune * glide;
+    sig = SinOsc.ar(freq, 0, env);
+    Out.ar (0, Pan2.ar (sig, pan, 1));
+}).add
+);
 
 // "balloon" - a square wave with a complicated pitch envelope and three parallel bandpasses
 
