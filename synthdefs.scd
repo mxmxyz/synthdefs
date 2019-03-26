@@ -18,7 +18,7 @@ w.cheby([0.5,1,3.75,0.2,0.2,1.45,1.0,0.8,2.5])
 
 // record button - ALWAYS to keep in a place where you'll always see it
 
-s.record('screcs/balloon-studies-06-15.wav');
+s.record('screcs/19F05e.wav');
 
 s.stopRecording
 
@@ -77,19 +77,20 @@ SynthDef.new(\balloon, {
 
 (
 SynthDef.new(\tunesharp, {
-	arg note=48, sustain=0.03, pitchval=1.0, pitchenv=0.0, detune=1.00, gain=0.3, pan =0, ringenv=100000, ringfreq=0, ringmod=0, bandpq=1, bandpf=1, upbound=1000000, lobound=1, tuning=12;
-	var gen, freq, ringed, unringed, ringline, prefilt, filted, octave, glide;
+	arg note=48, sustain=0.03, pitchval=1.0, pitchenv=0.0, detune=1.00, gain=0.3, pan =0, ringenv=100000, ringfreq=0, ringmod=0, bandpq=1, bandpf=1, upbound=1000000, lobound=1, tuning=12, decay = 0.01;
+	var gen, freq, ringed, unringed, ringline, prefilt, filted, octave, glide, filtenv;
         gen = Line.kr(1,0,sustain,gain,0,2);
 	glide = XLine.kr(pitchval,1,pitchenv);
 	note= note.wrap(lobound,upbound);
 	octave = ((note/tuning)-5).trunc(1);
 	freq = 440 * (pow(2,octave)) * (pow(2,((mod(note,tuning))/tuning)));
 	freq= freq * detune * glide;
+	filtenv = XLine.kr(freq*bandpf, freq, decay);
 	ringline = XLine.ar (freq*ringfreq, freq, ringenv);
 	ringed = (LFPulse.ar (freq) * gen) * (SinOsc.ar(ringline, 0, ringmod));
 	unringed = (LFPulse.ar (freq) * gen) * (1-ringmod);
 	prefilt = ringed + unringed;
-	filted = BBandPass.ar(prefilt, bandpf * freq, bandpq);
+	filted = BBandPass.ar(prefilt, filtenv, bandpq);
 	Out.ar (0, Pan2.ar(filted,pan,1));
 }).add
 ) 
