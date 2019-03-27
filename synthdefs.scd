@@ -61,7 +61,7 @@ SynthDef.new(\balloon, {
 	path = Env.new([freqa, freqb, freqc, freqd], [envab * timescale, envbc * timescale, envcd * timescale], \exp);
 	env = EnvGen.ar (path);
 	wave = LFPulse.ar (env);
-	ringline = XLine.ar (env*ringfreq, env, ringenv);
+	ringline = XLine.ar (env*ringfreq, env, ringenv*timescale);
 	ringed = wave * (SinOsc.ar(ringline, 0, ringmod));
 	unringed = wave * (1-ringmod);
 	prefilt = ringed + unringed;
