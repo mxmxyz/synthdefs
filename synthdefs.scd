@@ -22,6 +22,25 @@ s.record('screcs/19F05e.wav');
 
 s.stopRecording
 
+// "string" - an fm-sine wave with a comb filter on top -- wip
+
+(
+SynthDef(\stringtest, {
+	arg out, sustain=1, pan = 0.5, note = 60, pitchval = 1, pitchenv = 0.01, detune = 1.00, gain = 0.25, tuning = 12, lobound = 0, upbound = 100000, envcurve = 3, fmfreq=1, fmamt=1, combtime=0.1, combdel=0.0 ;
+	var env, freq, sig, glide, octave, fm, precomb;
+    env = EnvGen.ar(Env.linen(0.01, 0.00, 0.99, gain, envcurve.neg), timeScale:sustain, doneAction:2);
+	glide = XLine.kr(pitchval,1,pitchenv);
+	note= note.wrap(lobound,upbound);
+	octave = ((note/tuning)-5).trunc(1);
+	freq = 440 * (pow(2,octave)) * (pow(2,((mod(note,tuning))/tuning)));
+	freq= freq * detune * glide;
+	fm = SinOsc.ar(freq*fmfreq, 0, fmamt);
+    precomb = SinOsc.ar(freq*fm, 0, env);
+    sig = CombL.ar(precomb, 2.0, combdel, combtime);
+    Out.ar (0, Pan2.ar (sig, pan, 1));
+}).add
+);
+
 // "plush" - a sine wave with a variable-curve envelope
 
 (
