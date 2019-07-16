@@ -18,7 +18,7 @@ w.cheby([0.5,1,3.75,0.2,0.2,1.45,1.0,0.8,2.5])
 
 // record button - ALWAYS to keep in a place where you'll always see it
 
-s.record('screcs/19F05e.wav');
+s.record('screcs/live-at-mastronauta-jul-2019.wav');
 
 s.stopRecording
 
@@ -26,17 +26,16 @@ s.stopRecording
 
 (
 SynthDef(\stringtest, {
-	arg out, sustain=1, pan = 0.5, note = 60, pitchval = 1, pitchenv = 0.01, detune = 1.00, gain = 0.25, tuning = 12, lobound = 0, upbound = 100000, envcurve = 3, fmfreq=1, fmamt=1, combtime=0.1, combdel=0.0 ;
+	arg out, sustain=1, pan = 0.5, note = 60, pitchval = 1, pitchenv = 0.01, detune = 1.00, gain = 0.25, tuning = 12, lobound = 0, upbound = 100000, envcurve = 3, fmfreq=1, fmamt=1;
 	var env, freq, sig, glide, octave, fm, precomb;
     env = EnvGen.ar(Env.linen(0.01, 0.00, 0.99, gain, envcurve.neg), timeScale:sustain, doneAction:2);
 	glide = XLine.kr(pitchval,1,pitchenv);
 	note= note.wrap(lobound,upbound);
 	octave = ((note/tuning)-5).trunc(1);
-	freq = 440 * (pow(2,octave)) * (pow(2,((mod(note,tuning))/tuning)));
+	freq = Select.kr (tuning < 1, [ 440 * (pow(2,octave)) * (pow(2,((mod(note,tuning))/tuning))) , note ]) ;
 	freq= freq * detune * glide;
 	fm = SinOsc.ar(freq*fmfreq, 0, fmamt);
-    precomb = SinOsc.ar(freq*fm, 0, env);
-    sig = CombL.ar(precomb, 2.0, combdel, combtime);
+    sig = SinOsc.ar(freq*fm, 0, env);
     Out.ar (0, Pan2.ar (sig, pan, 1));
 }).add
 );
@@ -51,7 +50,7 @@ SynthDef(\plush, {
 	glide = XLine.kr(pitchval,1,pitchenv);
 	note= note.wrap(lobound,upbound);
 	octave = ((note/tuning)-5).trunc(1);
-	freq = 440 * (pow(2,octave)) * (pow(2,((mod(note,tuning))/tuning)));
+	freq = Select.kr (tuning < 1, [ 440 * (pow(2,octave)) * (pow(2,((mod(note,tuning))/tuning))) , note ]) ;
 	freq= freq * detune * glide;
     sig = SinOsc.ar(freq, 0, env);
     Out.ar (0, Pan2.ar (sig, pan, 1));
@@ -67,16 +66,16 @@ SynthDef.new(\balloon, {
 	line = Line.kr (1,0,sustain * timescale,gain,0,2);
 	notea = notea.wrap(lobound,upbound);
 	octavea = ((notea/tuning)-5).trunc(1);
-	freqa = 440 * (pow(2,octavea)) * (pow(2,((mod(notea,tuning))/tuning)));
+	freqa = Select.kr (tuning < 1, [ 440 * (pow(2,octavea)) * (pow(2,((mod(notea,tuning))/tuning))) , notea ]) ;
 	noteb = noteb.wrap(lobound,upbound);
 	octaveb = ((noteb/tuning)-5).trunc(1);
-	freqb = 440 * (pow(2,octaveb)) * (pow(2,((mod(noteb,tuning))/tuning)));
+	freqb = Select.kr (tuning < 1, [ 440 * (pow(2,octaveb)) * (pow(2,((mod(noteb,tuning))/tuning))) , noteb ]) ;
 	notec = notec.wrap(lobound,upbound);
 	octavec = ((notec/tuning)-5).trunc(1);
-	freqc = 440 * (pow(2,octavec)) * (pow(2,((mod(notec,tuning))/tuning)));
+	freqc = Select.kr (tuning < 1, [ 440 * (pow(2,octavec)) * (pow(2,((mod(notec,tuning))/tuning))) , notec ]) ;
 	noted = noted.wrap(lobound,upbound);
 	octaved = ((noted/tuning)-5).trunc(1);
-	freqd = 440 * (pow(2,octaved)) * (pow(2,((mod(noted,tuning))/tuning)));
+	freqd = Select.kr (tuning < 1, [ 440 * (pow(2,octaved)) * (pow(2,((mod(noted,tuning))/tuning))) , noted ]) ;
 	path = Env.new([freqa, freqb, freqc, freqd], [envab * timescale, envbc * timescale, envcd * timescale], \exp);
 	env = EnvGen.ar (path);
 	wave = LFPulse.ar (env);
@@ -102,7 +101,7 @@ SynthDef.new(\tunesharp, {
 	glide = XLine.kr(pitchval,1,pitchenv);
 	note= note.wrap(lobound,upbound);
 	octave = ((note/tuning)-5).trunc(1);
-	freq = 440 * (pow(2,octave)) * (pow(2,((mod(note,tuning))/tuning)));
+	freq = Select.kr (tuning < 1, [ 440 * (pow(2,octave)) * (pow(2,((mod(note,tuning))/tuning))) , note ]) ;
 	freq= freq * detune * glide;
 	filtenv = XLine.kr(freq*bandpf, freq, decay);
 	ringline = XLine.ar (freq*ringfreq, freq, ringenv);
@@ -123,7 +122,7 @@ SynthDef.new(\tunesaw, {
         gen = Line.kr(1,0,sustain,gain,0,2);
 	note= note.wrap(lobound,upbound);
 	octave = ((note/tuning)-5).trunc(1);
-	freq = 440 * (pow(2,octave)) * (pow(2,((mod(note,tuning))/tuning)));
+	freq = Select.kr (tuning < 1, [ 440 * (pow(2,octave)) * (pow(2,((mod(note,tuning))/tuning))) , note ]) ;
 	freq= freq * detune;
 	ringline = XLine.ar (freq*ringfreq, freq, ringenv);
 	ringed = (LFSaw.ar (freq, 0, 1) * gen) * (SinOsc.ar(ringline, 0, ringmod));
