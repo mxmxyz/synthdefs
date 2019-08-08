@@ -28,7 +28,7 @@ s.stopRecording
 SynthDef(\stringtest, {
 	arg out, sustain=1, pan = 0.5, note = 60, pitchval = 1, pitchenv = 0.01, detune = 1.00, gain = 0.25, tuning = 12, lobound = 0, upbound = 100000, envcurve = 3, fmfreq=1, fmamt=1, attpercent=0.01;
 	var env, freq, sig, glide, octave, fm, precomb;
-    env = EnvGen.ar(Env.linen(attpercent, 0.00, 0.99, gain, envcurve.neg), timeScale:sustain, doneAction:2);
+    env = EnvGen.ar(Env.linen(attpercent, 0.00, (1-attpercent), gain, envcurve.neg), timeScale:sustain, doneAction:2);
 	glide = XLine.kr(pitchval,1,pitchenv);
 	note= note.wrap(lobound,upbound);
 	octave = ((note/tuning)-5).trunc(1);
@@ -46,7 +46,7 @@ SynthDef(\stringtest, {
 SynthDef(\plush, {
 	arg out, sustain=1, pan = 0.5, note = 60, pitchval = 1, pitchenv = 0.01, detune = 1.00, gain = 0.25, tuning = 12, lobound = 0, upbound = 100000, envcurve = 3, attpercent=0.01;
 	var env, freq, sig, glide, octave;
-    env = EnvGen.ar(Env.linen(attpercent, 0.00, 0.99, gain, envcurve.neg), timeScale:sustain, doneAction:2);
+    env = EnvGen.ar(Env.linen(attpercent, 0.00, (1-attpercent), gain, envcurve.neg), timeScale:sustain, doneAction:2);
 	glide = XLine.kr(pitchval,1,pitchenv);
 	note= note.wrap(lobound,upbound);
 	octave = ((note/tuning)-5).trunc(1);
