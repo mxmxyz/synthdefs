@@ -3,7 +3,7 @@
 // Start SuperDirt with a reasonable memory size and an oscilloscope
 
 (
-s.options.memSize = 8192*8192;
+s.options.memSize = 8192*8192*2;
 SuperDirt.start;
 s.scope;
 )
@@ -26,9 +26,9 @@ s.stopRecording
 
 (
 SynthDef(\stringtest, {
-	arg out, sustain=1, pan = 0.5, note = 60, pitchval = 1, pitchenv = 0.01, detune = 1.00, gain = 0.25, tuning = 12, lobound = 0, upbound = 100000, envcurve = 3, fmfreq=1, fmamt=1;
+	arg out, sustain=1, pan = 0.5, note = 60, pitchval = 1, pitchenv = 0.01, detune = 1.00, gain = 0.25, tuning = 12, lobound = 0, upbound = 100000, envcurve = 3, fmfreq=1, fmamt=1, attpercent=0.01;
 	var env, freq, sig, glide, octave, fm, precomb;
-    env = EnvGen.ar(Env.linen(0.01, 0.00, 0.99, gain, envcurve.neg), timeScale:sustain, doneAction:2);
+    env = EnvGen.ar(Env.linen(attpercent, 0.00, 0.99, gain, envcurve.neg), timeScale:sustain, doneAction:2);
 	glide = XLine.kr(pitchval,1,pitchenv);
 	note= note.wrap(lobound,upbound);
 	octave = ((note/tuning)-5).trunc(1);
@@ -44,9 +44,9 @@ SynthDef(\stringtest, {
 
 (
 SynthDef(\plush, {
-	arg out, sustain=1, pan = 0.5, note = 60, pitchval = 1, pitchenv = 0.01, detune = 1.00, gain = 0.25, tuning = 12, lobound = 0, upbound = 100000, envcurve = 3;
+	arg out, sustain=1, pan = 0.5, note = 60, pitchval = 1, pitchenv = 0.01, detune = 1.00, gain = 0.25, tuning = 12, lobound = 0, upbound = 100000, envcurve = 3, attpercent=0.01;
 	var env, freq, sig, glide, octave;
-    env = EnvGen.ar(Env.linen(0.01, 0.00, 0.99, gain, envcurve.neg), timeScale:sustain, doneAction:2);
+    env = EnvGen.ar(Env.linen(attpercent, 0.00, 0.99, gain, envcurve.neg), timeScale:sustain, doneAction:2);
 	glide = XLine.kr(pitchval,1,pitchenv);
 	note= note.wrap(lobound,upbound);
 	octave = ((note/tuning)-5).trunc(1);
@@ -152,3 +152,21 @@ SynthDef.new(\supersaw, {
 	Out.ar (0, Pan2.ar(sig,pan,1));
 }).add
 ) 
+
+// 4 channels
+
+(
+  s.options.numBuffers = 1024 * 256;
+  s.options.memSize = 8192 * 16;
+  s.options.maxNodes = 1024 * 32;
+  s.options.numOutputBusChannels = 4; // total number of channels output
+  s.options.numInputBusChannels = 2;
+
+  s.waitForBoot {
+      ~dirt = SuperDirt(4, s); // pan across four channels
+      ~dirt.loadSoundFiles;
+      ~dirt.start(57120, [0, 0, 0, 0, 0, 0]);
+  };
+  s.latency = 0.3;
+  s.scope;
+);
