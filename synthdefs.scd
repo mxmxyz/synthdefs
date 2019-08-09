@@ -36,7 +36,7 @@ SynthDef(\stringtest, {
 	freq= freq * detune * glide;
 	fm = SinOsc.ar(freq*fmfreq, 0, fmamt);
     sig = SinOsc.ar(freq*fm, 0, env);
-    Out.ar (0, Pan2.ar (sig, pan, 1));
+    OffsetOut.ar (out, DirtPan.ar (sig, ~dirt.numChannels, pan));
 }).add
 );
 
@@ -53,7 +53,7 @@ SynthDef(\plush, {
 	freq = Select.kr (tuning < 1, [ 440 * (pow(2,octave)) * (pow(2,((mod(note,tuning))/tuning))) , note ]) ;
 	freq= freq * detune * glide;
     sig = SinOsc.ar(freq, 0, env);
-    Out.ar (0, Pan2.ar (sig, pan, 1));
+    OffsetOut.ar (out, DirtPan.ar (sig, ~dirt.numChannels, pan));
 }).add
 );
 
@@ -87,7 +87,7 @@ SynthDef.new(\balloon, {
 	filtedb = (BBandPass.ar(prefilt, bandpfb * env, bandpqb) * bandpgb);
 	filtedc = (BBandPass.ar(prefilt, bandpfc * env, bandpqc) * bandpgc);
 	sig = ((filteda + filtedb + filtedc) / 3 * line);
-	Out.ar (0, Pan2.ar (sig, pan, 1));
+    OffsetOut.ar (out, DirtPan.ar (sig, ~dirt.numChannels, pan));
 }).add
 )
 
@@ -109,7 +109,7 @@ SynthDef.new(\tunesharp, {
 	unringed = (LFPulse.ar (freq) * gen) * (1-ringmod);
 	prefilt = ringed + unringed;
 	filted = BBandPass.ar(prefilt, filtenv, bandpq);
-	Out.ar (0, Pan2.ar(filted,pan,1));
+    OffsetOut.ar (out, DirtPan.ar (sig, ~dirt.numChannels, pan));
 }).add
 ) 
 
@@ -130,7 +130,7 @@ SynthDef.new(\tunesaw, {
 	prefilt = ringed + unringed;
 	filted = BLowPass.ar(prefilt, lopf, lopq);
 	sig = (Shaper.ar(w, filted, shaped)) + (filted * (1 - shaped));
-	Out.ar (0, Pan2.ar(sig,pan,1));
+    OffsetOut.ar (out, DirtPan.ar (sig, ~dirt.numChannels, pan));
 }).add
 ) 
 
@@ -149,7 +149,7 @@ SynthDef.new(\supersaw, {
 	prefilt = ringed + unringed;
 	filted = BLowPass.ar(prefilt, lopf, lopq);
 	sig = (Shaper.ar(w, filted, shaped)) + (filted * (1 - shaped));
-	Out.ar (0, Pan2.ar(sig,pan,1));
+    OffsetOut.ar (out, DirtPan.ar (sig, ~dirt.numChannels, pan));
 }).add
 ) 
 
