@@ -1,10 +1,10 @@
-// My kinda bootup file
-
 // record button - ALWAYS to keep in a place where you'll always see it
 
 s.record('screcs/live-at-mastronauta-jul-2019.wav');
 
 s.stopRecording
+
+// My kinda bootup file
 
 // Start SuperDirt with a reasonable memory size and an oscilloscope
 
@@ -12,7 +12,7 @@ s.stopRecording
 s.options.memSize = 8192*8192*2;
 SuperDirt.start;
 s.scope;
-)
+);
 
 // buffer for my waveshaper - handy to play with during performances
 
@@ -20,7 +20,7 @@ w = Buffer.alloc(s,1024,1);
 
 (
 w.cheby([0.5,1,3.75,0.2,0.2,1.45,1.0,0.8,2.5])
-)
+);
 
 // Spectral smear
 ~dirt.addModule('spectral-smear', { |dirtEvent|
@@ -40,7 +40,7 @@ SynthDef("spectral-smear" ++ ~dirt.numChannels, { |out, smear|
         signal = IFFT(PV_MagSmear(chain, bins: smear.linexp(0.0,1.0,1,64)));
         ReplaceOut.ar(out, signal)
 }, [\ir, \ir]).add;
-)
+);
 
 
 // "string" - an fm-sine wave with a comb filter on top -- wip
@@ -60,8 +60,6 @@ SynthDef(\stringtest, {
     OffsetOut.ar (out, DirtPan.ar (sig, ~dirt.numChannels, pan));
 }).add
 );
-
-LeakDC
 
 // "plush" - a sine wave with a variable-curve envelope
 
@@ -112,7 +110,7 @@ SynthDef.new(\balloon, {
 	sig = ((filteda + filtedb + filtedc) / 3 * line);
     OffsetOut.ar (out, DirtPan.ar (sig, ~dirt.numChannels, pan));
 }).add
-)
+);
 
 // "tunesharp" - a tuneable square wave with pitchenv and ringmod
 
@@ -134,7 +132,7 @@ SynthDef.new(\tunesharp, {
 	filted = BBandPass.ar(prefilt, filtenv, bandpq);
     OffsetOut.ar (out, DirtPan.ar (sig, ~dirt.numChannels, pan));
 }).add
-) 
+);
 
 // "tunesaw" - a tuneable sawtooth with ringmod and a waveshaper
 
@@ -155,7 +153,7 @@ SynthDef.new(\tunesaw, {
 	sig = (Shaper.ar(w, filted, shaped)) + (filted * (1 - shaped));
     OffsetOut.ar (out, DirtPan.ar (sig, ~dirt.numChannels, pan));
 }).add
-) 
+); 
 
 // "supersaw" - a 12edo sawtooth with ringmod and a waveshaper
 
@@ -174,7 +172,7 @@ SynthDef.new(\supersaw, {
 	sig = (Shaper.ar(w, filted, shaped)) + (filted * (1 - shaped));
     OffsetOut.ar (out, DirtPan.ar (sig, ~dirt.numChannels, pan));
 }).add
-) 
+); 
 
 // 4 channels
 
