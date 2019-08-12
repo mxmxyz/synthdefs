@@ -1,5 +1,11 @@
 // My kinda bootup file
 
+// record button - ALWAYS to keep in a place where you'll always see it
+
+s.record('screcs/live-at-mastronauta-jul-2019.wav');
+
+s.stopRecording
+
 // Start SuperDirt with a reasonable memory size and an oscilloscope
 
 (
@@ -16,11 +22,26 @@ w = Buffer.alloc(s,1024,1);
 w.cheby([0.5,1,3.75,0.2,0.2,1.45,1.0,0.8,2.5])
 )
 
-// record button - ALWAYS to keep in a place where you'll always see it
+// Spectral smear
+~dirt.addModule('spectral-smear', { |dirtEvent|
+        dirtEvent.sendSynth('spectral-smear' ++ ~dirt.numChannels,
+                [
+                        smear: ~smear,
+                        out: ~out
+                ]
+        )
+}, { ~smear.notNil });
 
-s.record('screcs/live-at-mastronauta-jul-2019.wav');
+(
+SynthDef("spectral-smear" ++ ~dirt.numChannels, { |out, smear|
+        var signal, chain, in;
+        signal = In.ar(out, ~dirt.numChannels);
+        chain = Array.fill(signal.size, { |i| FFT(LocalBuf(2048), signal[i])});
+        signal = IFFT(PV_MagSmear(chain, bins: smear.linexp(0.0,1.0,1,64)));
+        ReplaceOut.ar(out, signal)
+}, [\ir, \ir]).add;
+)
 
-s.stopRecording
 
 // "string" - an fm-sine wave with a comb filter on top -- wip
 
@@ -35,10 +56,12 @@ SynthDef(\stringtest, {
 	freq = Select.kr (tuning < 1, [ 440 * (pow(2,octave)) * (pow(2,((mod(note,tuning))/tuning))) , note ]) ;
 	freq= freq * detune * glide;
 	fm = SinOsc.ar(freq*fmfreq, 0, fmamt);
-    sig = SinOsc.ar(freq*fm, 0, env);
+    sig = LeakDC.ar(SinOsc.ar(freq*fm, 0, env));
     OffsetOut.ar (out, DirtPan.ar (sig, ~dirt.numChannels, pan));
 }).add
 );
+
+LeakDC
 
 // "plush" - a sine wave with a variable-curve envelope
 
