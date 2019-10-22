@@ -9,7 +9,7 @@ s.stopRecording
 // Start SuperDirt with a reasonable memory size and an oscilloscope
 
 (
-s.options.memSize = 8192*8192*2;
+s.options.memSize = pow(2,30);
 SuperDirt.start;
 s.scope;
 );
@@ -19,7 +19,7 @@ s.scope;
 w = Buffer.alloc(s,1024,1);
 
 (
-w.cheby([0.5,1,3.75,0.2,0.2,1.45,1.0,0.8,2.5])
+w.cheby([0.5,2,10.05,0.2,8.2,0.45,1.0,0.0,3.5])
 );
 
 // Spectral smear
@@ -82,7 +82,7 @@ SynthDef(\plush, {
 
 (
 SynthDef.new(\balloon, {
-	arg notea = 48, noteb = 48, notec = 48, noted = 48, tuning = 12, envab = 0, envbc = 0, envcd = 0, gain = 0.3, pan = 0.5, bandpfa = 1, bandpfb = 1, bandpfc = 1, bandpqa = 1, bandpqb = 1, bandpqc = 1, bandpga = 1, bandpgb = 1, bandpgc = 1, upbound=1000000, lobound=1, sustain = 0.5, timescale = 1, ringmod = 0, ringenv = 10000, ringfreq = 1;
+	arg out, notea = 48, noteb = 48, notec = 48, noted = 48, tuning = 12, envab = 0, envbc = 0, envcd = 0, gain = 0.3, pan = 0.5, bandpfa = 1, bandpfb = 1, bandpfc = 1, bandpqa = 1, bandpqb = 1, bandpqc = 1, bandpga = 1, bandpgb = 1, bandpgc = 1, upbound=1000000, lobound=1, sustain = 0.5, timescale = 1, ringmod = 0, ringenv = 10000, ringfreq = 1;
 	var line, octavea, octaveb, octavec, octaved, freqa, freqb, freqc, freqd, path, env, filteda, filtedb, filtedc, sig, wave, ringline, ringed, unringed, prefilt;
 	line = Line.kr (1,0,sustain * timescale,gain,0,2);
 	notea = notea.wrap(lobound,upbound);
@@ -130,7 +130,7 @@ SynthDef.new(\tunesharp, {
 	unringed = (LFPulse.ar (freq) * gen) * (1-ringmod);
 	prefilt = ringed + unringed;
 	filted = BBandPass.ar(prefilt, filtenv, bandpq);
-    OffsetOut.ar (out, DirtPan.ar (sig, ~dirt.numChannels, pan));
+    OffsetOut.ar (filted, DirtPan.ar (filted, ~dirt.numChannels, pan));
 }).add
 );
 
@@ -138,7 +138,7 @@ SynthDef.new(\tunesharp, {
 
 (
 SynthDef.new(\tunesaw, {
-	arg note=48, sustain=0.03, detune=1.00, gain=0.3, pan =0, ringenv=100000, ringfreq=0, ringmod=0, lopq=1, lopf=20000, shaped=0, upbound=1000000, lobound=1, tuning=12;
+	arg out,note=48, sustain=0.03, detune=1.00, gain=0.3, pan =0, ringenv=100000, ringfreq=0, ringmod=0, lopq=1, lopf=20000, shaped=0, upbound=1000000, lobound=1, tuning=12;
 	var sig, env, gen, freq, ringed, unringed, ringline, prefilt, filted, octave;
         gen = Line.kr(1,0,sustain,gain,0,2);
 	note= note.wrap(lobound,upbound);
@@ -151,7 +151,7 @@ SynthDef.new(\tunesaw, {
 	prefilt = ringed + unringed;
 	filted = BLowPass.ar(prefilt, lopf, lopq);
 	sig = (Shaper.ar(w, filted, shaped)) + (filted * (1 - shaped));
-    OffsetOut.ar (out, DirtPan.ar (sig, ~dirt.numChannels, pan));
+    OffsetOut.ar (sig, DirtPan.ar (sig, ~dirt.numChannels, pan));
 }).add
 ); 
 
@@ -159,7 +159,7 @@ SynthDef.new(\tunesaw, {
 
 (
 SynthDef.new(\supersaw, {
-	arg note, sustain=0.03, detune=1.00, gain=0.3, pan =0, ringenv=100000, ringfreq=0, ringmod=0, lopq=1, lopf=20000, shaped=0, upbound=1000000, lobound=0;
+	arg out, note, sustain=0.03, detune=1.00, gain=0.3, pan =0, ringenv=100000, ringfreq=0, ringmod=0, lopq=1, lopf=20000, shaped=0, upbound=1000000, lobound=0;
 	var sig, env, gen, freq, ringed, unringed, ringline, prefilt, filted;
         gen = Line.kr(1,0,sustain,gain,0,2);
 	note= note.wrap(lobound,upbound);
@@ -180,11 +180,11 @@ SynthDef.new(\supersaw, {
   s.options.numBuffers = 1024 * 256;
   s.options.memSize = 8192 * 16;
   s.options.maxNodes = 1024 * 32;
-  s.options.numOutputBusChannels = 4; // total number of channels output
+  s.options.numOutputBusChannels = 8; // total number of channels output
   s.options.numInputBusChannels = 2;
 
   s.waitForBoot {
-      ~dirt = SuperDirt(4, s); // pan across four channels
+      ~dirt = SuperDirt(8, s); // pan across four channels
       ~dirt.loadSoundFiles;
       ~dirt.start(57120, [0, 0, 0, 0, 0, 0]);
   };
